@@ -1,0 +1,153 @@
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        // KUBE Brand Colors
+        primary: {
+          DEFAULT: '#0066FF',
+          50: '#E6F0FF',
+          100: '#CCE0FF',
+          200: '#99C2FF',
+          300: '#66A3FF',
+          400: '#3385FF',
+          500: '#0066FF',
+          600: '#0052CC',
+          700: '#003D99',
+          800: '#002966',
+          900: '#001433',
+        },
+        accent: {
+          DEFAULT: '#00AAFF',
+          50: '#E6F7FF',
+          100: '#B3E5FF',
+          200: '#80D4FF',
+          300: '#4DC2FF',
+          400: '#1AB0FF',
+          500: '#00AAFF',
+          600: '#0088CC',
+          700: '#006699',
+          800: '#004466',
+          900: '#002233',
+        },
+        success: {
+          DEFAULT: '#00CC66',
+          50: '#E6FFF2',
+          100: '#B3FFDB',
+          200: '#80FFC4',
+          300: '#4DFFAD',
+          400: '#1AFF96',
+          500: '#00CC66',
+          600: '#00B359',
+          700: '#009944',
+          800: '#00662E',
+          900: '#003317',
+        },
+        warning: {
+          DEFAULT: '#FFAA00',
+          50: '#FFF8E6',
+          100: '#FFEAB3',
+          200: '#FFDD80',
+          300: '#FFCF4D',
+          400: '#FFC21A',
+          500: '#FFAA00',
+          600: '#CC8800',
+          700: '#996600',
+          800: '#664400',
+          900: '#332200',
+        },
+        danger: {
+          DEFAULT: '#FF3366',
+          50: '#FFE6EC',
+          100: '#FFB3C7',
+          200: '#FF80A3',
+          300: '#FF4D7E',
+          400: '#FF1A5A',
+          500: '#FF3366',
+          600: '#CC0033',
+          700: '#990026',
+          800: '#660019',
+          900: '#33000D',
+        },
+        gray: {
+          50: '#F9FAFB',
+          100: '#F3F4F6',
+          200: '#E5E7EB',
+          300: '#D1D5DB',
+          400: '#9CA3AF',
+          500: '#6B7280',
+          600: '#4B5563',
+          700: '#374151',
+          800: '#1F2937',
+          900: '#111827',
+          950: '#030712',
+        },
+      },
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+        'gradient-sky': 'linear-gradient(to bottom, #0066FF, #00AAFF)',
+        'gradient-dark': 'linear-gradient(to bottom, #003D99, #001433)',
+      },
+      boxShadow: {
+        'glow-blue': '0 0 20px rgba(0, 102, 255, 0.3)',
+        'glow-accent': '0 0 20px rgba(0, 170, 255, 0.3)',
+        'card': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'card-hover': '0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.6s ease-out',
+        'slide-up': 'slideUp 0.6s ease-out',
+        'slide-down': 'slideDown 0.6s ease-out',
+        'slide-right': 'slideRight 0.6s ease-out',
+        'scale-in': 'scaleIn 0.4s ease-out',
+        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideRight: {
+          '0%': { transform: 'translateX(-20px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        pulseGlow: {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(0, 102, 255, 0.2)' },
+          '50%': { boxShadow: '0 0 30px rgba(0, 102, 255, 0.4)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+
+export default config
