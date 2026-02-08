@@ -1,0 +1,817 @@
+// KUBE Platform Database Schema
+// This schema defines the complete data model for KUBE's three modules
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================================================
+
+enum UserRole {
+  ADMIN
+  FARMER
+  RANGER
+  ANALYST
+  POLICY_MAKER
+  OPERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum BusinessType {
+  B2B
+  B2C
+}
+
+enum KubeService {
+  KUBE_FARM
+  KUBE_PARK
+  KUBE_LAND
+}
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          UserRole     @default(FARMER)
+  status        UserStatus   @default(ACTIVE)
+  avatar        String?
+  organization  String?
+  location      String?
+  language      String       @default("en")
+
+  // Business & Service Selection
+  businessType  BusinessType?
+  services      KubeService[]
+  companyName   String?
+  companySize   String?
+  industry      String?
+
+  // Relationships
+  farms         Farm[]
+  parks         Park[]
+  alerts        Alert[]
+  reports       Report[]
+  activities    Activity[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  lastLoginAt   DateTime?
+
+  @@map("users")
+}
+
+// ============================================================================
+// KUBE-FARM: LIVESTOCK INTELLIGENCE
+// ============================================================================
+
+enum FarmStatus {
+  ACTIVE
+  INACTIVE
+  MONITORED
+}
+
+model Farm {
+  id            String       @id @default(uuid())
+  name          String
+  description   String?
+  location      String
+  latitude      Float
+  longitude     Float
+  area          Float        // in hectares
+  status        FarmStatus   @default(ACTIVE)
+
+  // Owner
+  owner         User         @relation(fields: [ownerId], references: [id])
+  ownerId       String
+
+  // Relationships
+  herds         Herd[]
+  pastureZones  PastureZone[]
+  alerts        Alert[]
+
+  // Metadata
+  metadata      Json?        // Additional farm data
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("farms")
+}
+
+enum HerdStatus {
+  HEALTHY
+  AT_RISK
+  CRITICAL
+  MONITORED
+}
+
+model Herd {
+  id            String       @id @default(uuid())
+  name          String
+  description   String?
+  animalType    String       // cattle, sheep, goats
+  totalCount    Int
+  healthyCount  Int
+  sickCount     Int
+  missingCount  Int
+
+  status        HerdStatus   @default(HEALTHY)
+
+  // Location
+  farm          Farm         @relation(fields: [farmId], references: [id])
+  farmId        String
+
+  // Relationships
+  animals       Animal[]
+  telemetry     HerdTelemetry[]
+
+  // Digital Twin Data
+  lastSeenAt    DateTime?
+  avgHealth     Float?       // 0-100 score
+  riskScore     Float?       // 0-100 score
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("herds")
+}
+
+enum AnimalStatus {
+  HEALTHY
+  SICK
+  INJURED
+  MISSING
+  DECEASED
+}
+
+model Animal {
+  id            String         @id @default(uuid())
+  tagId         String         @unique
+  name          String?
+  species       String
+  breed         String?
+  gender        String
+  age           Int?
+  weight        Float?
+
+  status        AnimalStatus   @default(HEALTHY)
+
+  // Location
+  herd          Herd           @relation(fields: [herdId], references: [id])
+  herdId        String
+
+  // Health Data
+  lastHealthCheck DateTime?
+  temperature   Float?
+  heartRate     Int?
+  vaccinations  Json?
+
+  // Movement
+  lastSeenLat   Float?
+  lastSeenLng   Float?
+  lastSeenAt    DateTime?
+
+  // Relationships
+  healthEvents  HealthEvent[]
+  telemetry     AnimalTelemetry[]
+
+  metadata      Json?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("animals")
+}
+
+model HealthEvent {
+  id            String       @id @default(uuid())
+  type          String       // disease, injury, vaccination, checkup
+  severity      String       // low, medium, high, critical
+  description   String
+  diagnosis     String?
+  treatment     String?
+  outcome       String?
+
+  // Related Animal
+  animal        Animal       @relation(fields: [animalId], references: [id])
+  animalId      String
+
+  // Detection
+  detectedBy    String       // ai, manual, vet
+  detectedAt    DateTime     @default(now())
+  resolvedAt    DateTime?
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("health_events")
+}
+
+model PastureZone {
+  id            String       @id @default(uuid())
+  name          String
+  farm          Farm         @relation(fields: [farmId], references: [id])
+  farmId        String
+
+  // Geographic data
+  coordinates   Json         // GeoJSON polygon
+  area          Float        // hectares
+
+  // Health metrics
+  ndviValue     Float?       // Normalized Difference Vegetation Index
+  biomass       Float?       // kg per hectare
+  soilMoisture  Float?       // percentage
+  degradation   Float?       // 0-100 score
+
+  // Status
+  capacity      Int?         // recommended animal capacity
+  currentLoad   Int?         // current animals grazing
+
+  lastSurveyAt  DateTime?
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("pasture_zones")
+}
+
+// Real-time telemetry from drones
+model HerdTelemetry {
+  id            String       @id @default(uuid())
+  herd          Herd         @relation(fields: [herdId], references: [id])
+  herdId        String
+
+  // Counts
+  countDetected Int
+  countHealthy  Int?
+  countSick     Int?
+  countMissing  Int?
+
+  // Location
+  latitude      Float
+  longitude     Float
+  altitude      Float?
+
+  // Environmental
+  temperature   Float?
+  humidity      Float?
+  windSpeed     Float?
+
+  // Source
+  droneId       String?
+  missionId     String?
+  imageUrl      String?
+
+  timestamp     DateTime     @default(now())
+
+  metadata      Json?
+
+  @@map("herd_telemetry")
+}
+
+model AnimalTelemetry {
+  id            String       @id @default(uuid())
+  animal        Animal       @relation(fields: [animalId], references: [id])
+  animalId      String
+
+  // Location
+  latitude      Float
+  longitude     Float
+
+  // Vitals (if available from thermal/sensors)
+  temperature   Float?
+  heartRate     Int?
+  activity      String?      // resting, grazing, moving
+
+  // Detection
+  confidence    Float?       // AI confidence 0-1
+  droneId       String?
+  imageUrl      String?
+
+  timestamp     DateTime     @default(now())
+
+  metadata      Json?
+
+  @@map("animal_telemetry")
+}
+
+// ============================================================================
+// KUBE-PARK: WILDLIFE & CONSERVATION
+// ============================================================================
+
+enum ParkStatus {
+  ACTIVE
+  PROTECTED
+  MONITORED
+}
+
+model Park {
+  id            String       @id @default(uuid())
+  name          String
+  description   String?
+  parkType      String       // national_park, reserve, conservancy
+  location      String
+  latitude      Float
+  longitude     Float
+  area          Float        // square kilometers
+  status        ParkStatus   @default(MONITORED)
+
+  // Manager
+  manager       User         @relation(fields: [managerId], references: [id])
+  managerId     String
+
+  // Relationships
+  zones         ParkZone[]
+  wildlife      WildlifePopulation[]
+  patrols       Patrol[]
+  incidents     Incident[]
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("parks")
+}
+
+model ParkZone {
+  id            String       @id @default(uuid())
+  name          String
+  park          Park         @relation(fields: [parkId], references: [id])
+  parkId        String
+
+  // Geographic
+  coordinates   Json         // GeoJSON polygon
+  area          Float        // square kilometers
+  zoneType      String       // core, buffer, tourism, restricted
+
+  // Wildlife
+  biodiversity  Float?       // 0-100 score
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("park_zones")
+}
+
+model WildlifePopulation {
+  id            String       @id @default(uuid())
+  park          Park         @relation(fields: [parkId], references: [id])
+  parkId        String
+
+  species       String
+  commonName    String
+  scientificName String?
+
+  // Census data
+  estimatedCount Int
+  lastCensusCount Int?
+  trend         String?      // increasing, stable, decreasing
+
+  // Status
+  conservationStatus String? // endangered, vulnerable, etc.
+  healthStatus  String?      // healthy, at_risk, critical
+
+  // Relationships
+  sightings     WildlifeSighting[]
+
+  lastCensusAt  DateTime?
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("wildlife_populations")
+}
+
+model WildlifeSighting {
+  id            String       @id @default(uuid())
+  population    WildlifePopulation @relation(fields: [populationId], references: [id])
+  populationId  String
+
+  // Sighting details
+  count         Int
+  latitude      Float
+  longitude     Float
+
+  // Observation
+  behavior      String?      // grazing, resting, migrating, distressed
+  health        String?      // healthy, injured, sick
+
+  // Detection
+  detectedBy    String       // ai, ranger, camera_trap
+  confidence    Float?       // AI confidence
+  imageUrl      String?
+  videoUrl      String?
+
+  timestamp     DateTime     @default(now())
+
+  metadata      Json?
+
+  @@map("wildlife_sightings")
+}
+
+enum PatrolStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  ABORTED
+}
+
+model Patrol {
+  id            String       @id @default(uuid())
+  park          Park         @relation(fields: [parkId], references: [id])
+  parkId        String
+
+  name          String
+  patrolType    String       // routine, emergency, anti_poaching, survey
+  status        PatrolStatus @default(SCHEDULED)
+
+  // Route
+  routeCoordinates Json      // GeoJSON LineString
+  plannedDistance Float?
+  actualDistance  Float?
+
+  // Timing
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  actualStart    DateTime?
+  actualEnd      DateTime?
+
+  // Team
+  rangers        Json?        // Array of ranger IDs/names
+  vehicles       Json?
+  droneId        String?
+
+  // Results
+  incidents      Incident[]
+  findings       String?
+  evidenceUrls   Json?
+
+  metadata       Json?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("patrols")
+}
+
+enum IncidentType {
+  POACHING
+  INJURY
+  DISEASE_OUTBREAK
+  FIRE
+  INTRUSION
+  HABITAT_DAMAGE
+  OTHER
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Incident {
+  id            String           @id @default(uuid())
+  park          Park             @relation(fields: [parkId], references: [id])
+  parkId        String
+
+  patrol        Patrol?          @relation(fields: [patrolId], references: [id])
+  patrolId      String?
+
+  type          IncidentType
+  severity      IncidentSeverity
+  title         String
+  description   String
+
+  // Location
+  latitude      Float
+  longitude     Float
+  location      String?
+
+  // Status
+  status        String           // reported, investigating, resolved, false_alarm
+
+  // Evidence
+  evidenceUrls  Json?            // Array of image/video URLs
+  witnessReports Json?
+
+  // Resolution
+  actionTaken   String?
+  outcome       String?
+
+  reportedAt    DateTime         @default(now())
+  resolvedAt    DateTime?
+
+  metadata      Json?
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@map("incidents")
+}
+
+// ============================================================================
+// KUBE-LAND: LANDSCAPE & CLIMATE INTELLIGENCE
+// ============================================================================
+
+model LandZone {
+  id            String       @id @default(uuid())
+  name          String
+  description   String?
+
+  // Geographic
+  coordinates   Json         // GeoJSON polygon
+  area          Float        // square kilometers
+  region        String
+  district      String?
+
+  // Classification
+  landUseType   String       // grassland, forest, agricultural, degraded
+  ownership     String?      // communal, private, state
+
+  // Health Metrics
+  vegetationIndex Float?     // NDVI or similar
+  soilHealth    Float?       // 0-100 score
+  degradationLevel Float?    // 0-100 score
+  erosionRisk   Float?       // 0-100 score
+
+  // Climate
+  avgRainfall   Float?       // mm per year
+  avgTemperature Float?      // celsius
+  droughtRisk   Float?       // 0-100 score
+
+  // Monitoring
+  surveys       LandSurvey[]
+  changes       LandChange[]
+
+  lastSurveyAt  DateTime?
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("land_zones")
+}
+
+model LandSurvey {
+  id            String       @id @default(uuid())
+  zone          LandZone     @relation(fields: [zoneId], references: [id])
+  zoneId        String
+
+  surveyType    String       // aerial, satellite, ground
+
+  // Metrics captured
+  ndvi          Float?
+  biomass       Float?
+  treeCanopyCover Float?
+  bareGround    Float?
+  waterBodies   Float?
+
+  // Analysis
+  healthScore   Float?       // 0-100
+  trends        Json?
+  recommendations String?
+
+  // Source
+  imageUrls     Json?
+  dataSource    String?
+  droneId       String?
+
+  surveyDate    DateTime
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+
+  @@map("land_surveys")
+}
+
+model LandChange {
+  id            String       @id @default(uuid())
+  zone          LandZone     @relation(fields: [zoneId], references: [id])
+  zoneId        String
+
+  changeType    String       // degradation, restoration, deforestation, urbanization
+  severity      String       // low, medium, high
+
+  // Before/After
+  beforeImageUrl String?
+  afterImageUrl  String?
+  affectedArea   Float?      // hectares or sq km
+
+  // Impact
+  impactDescription String
+  causesIdentified  String?
+  recommendedAction String?
+
+  detectedAt    DateTime
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+
+  @@map("land_changes")
+}
+
+// ============================================================================
+// CROSS-CUTTING: ALERTS, REPORTS, ACTIVITY
+// ============================================================================
+
+enum AlertType {
+  HEALTH
+  SECURITY
+  ENVIRONMENTAL
+  SYSTEM
+  EMERGENCY
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+  EMERGENCY
+}
+
+enum AlertStatus {
+  NEW
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+model Alert {
+  id            String         @id @default(uuid())
+  type          AlertType
+  severity      AlertSeverity
+  status        AlertStatus    @default(NEW)
+
+  title         String
+  message       String
+  details       String?
+
+  // Context
+  module        String         // farm, park, land
+  entityType    String?        // herd, animal, patrol, zone
+  entityId      String?
+
+  // Location
+  latitude      Float?
+  longitude     Float?
+  location      String?
+
+  // Assignment
+  assignedTo    User?          @relation(fields: [assignedToId], references: [id])
+  assignedToId  String?
+
+  farm          Farm?          @relation(fields: [farmId], references: [id])
+  farmId        String?
+
+  // Actions
+  actionTaken   String?
+  resolvedBy    String?
+  resolvedAt    DateTime?
+
+  // Notification
+  notificationSent Boolean      @default(false)
+  notificationChannels Json?    // sms, email, app
+
+  metadata      Json?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("alerts")
+}
+
+enum ReportType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  INCIDENT
+  AUDIT
+  CUSTOM
+}
+
+model Report {
+  id            String       @id @default(uuid())
+  title         String
+  type          ReportType
+  module        String       // farm, park, land, system
+
+  description   String?
+
+  // Data
+  dataSnapshot  Json         // Report content and metrics
+  charts        Json?        // Chart configurations
+
+  // Generation
+  generatedBy   User         @relation(fields: [generatedById], references: [id])
+  generatedById String
+  generatedAt   DateTime     @default(now())
+
+  // Period
+  periodStart   DateTime?
+  periodEnd     DateTime?
+
+  // Sharing
+  isPublic      Boolean      @default(false)
+  accessLevel   String       @default("private")
+
+  // Export
+  pdfUrl        String?
+  excelUrl      String?
+
+  metadata      Json?
+
+  createdAt     DateTime     @default(now())
+
+  @@map("reports")
+}
+
+enum ActivityType {
+  USER_LOGIN
+  USER_LOGOUT
+  ENTITY_CREATED
+  ENTITY_UPDATED
+  ENTITY_DELETED
+  ALERT_CREATED
+  ALERT_RESOLVED
+  REPORT_GENERATED
+  PATROL_STARTED
+  PATROL_COMPLETED
+  DATA_IMPORTED
+  SYSTEM_EVENT
+}
+
+model Activity {
+  id            String       @id @default(uuid())
+  type          ActivityType
+  action        String
+  description   String
+
+  // Actor
+  user          User?        @relation(fields: [userId], references: [id])
+  userId        String?
+
+  // Context
+  module        String?      // farm, park, land, system
+  entityType    String?
+  entityId      String?
+
+  // Details
+  changes       Json?        // Before/after data
+  ipAddress     String?
+  userAgent     String?
+
+  timestamp     DateTime     @default(now())
+
+  metadata      Json?
+
+  @@map("activities")
+}
+
+// ============================================================================
+// SYSTEM & CONFIGURATION
+// ============================================================================
+
+model SystemConfig {
+  id            String       @id @default(uuid())
+  key           String       @unique
+  value         Json
+  category      String       // general, alerts, maps, notifications
+  description   String?
+
+  updatedAt     DateTime     @updatedAt
+  updatedBy     String?
+
+  @@map("system_configs")
+}
