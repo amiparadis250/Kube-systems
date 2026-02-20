@@ -36,14 +36,14 @@ const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: ['https://kubesystems.vercel.app', 'http://localhost:3000'],
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
 });
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: ['https://kubesystems.vercel.app', 'http://localhost:3000'],
   credentials: true
 }));
 app.use(express.json());
