@@ -84,13 +84,13 @@ export const getParkById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { park }
     });
   } catch (error) {
     console.error('Get park error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get park'
     });
@@ -130,14 +130,14 @@ export const createPark = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Park created successfully',
       data: { park }
     });
   } catch (error) {
     console.error('Create park error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create park'
     });
@@ -230,14 +230,14 @@ export const createPatrol = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Patrol created successfully',
       data: { patrol }
     });
   } catch (error) {
     console.error('Create patrol error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create patrol'
     });
@@ -299,14 +299,14 @@ export const createIncident = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Incident reported successfully',
       data: { incident }
     });
   } catch (error) {
     console.error('Create incident error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to report incident'
     });

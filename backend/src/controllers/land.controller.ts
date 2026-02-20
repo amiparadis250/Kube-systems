@@ -70,13 +70,13 @@ export const getLandZoneById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { zone }
     });
   } catch (error) {
     console.error('Get land zone error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get land zone'
     });
@@ -110,14 +110,14 @@ export const createLandZone = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Land zone created successfully',
       data: { zone }
     });
   } catch (error) {
     console.error('Create land zone error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create land zone'
     });
@@ -178,14 +178,14 @@ export const createSurvey = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Survey created successfully',
       data: { survey }
     });
   } catch (error) {
     console.error('Create survey error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create survey'
     });
@@ -247,14 +247,14 @@ export const createChange = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Land change reported successfully',
       data: { change }
     });
   } catch (error) {
     console.error('Create change error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to report change'
     });

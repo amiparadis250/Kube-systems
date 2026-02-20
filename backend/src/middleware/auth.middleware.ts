@@ -33,16 +33,17 @@ export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'No token provided'
       });
+      return;
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
@@ -65,17 +66,19 @@ export const authenticate = async (
     });
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'User not found'
       });
+      return;
     }
 
     if (user.status !== 'ACTIVE') {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Account is not active'
       });
+      return;
     }
 
     // Attach user to request
@@ -88,20 +91,22 @@ export const authenticate = async (
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Invalid token'
       });
+      return;
     }
 
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Token expired'
       });
+      return;
     }
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: 'Authentication error'
     });
@@ -112,19 +117,21 @@ export const authenticate = async (
  * Check if user has required role
  */
 export const authorize = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Not authenticated'
       });
+      return;
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         message: 'Insufficient permissions'
       });
+      return;
     }
 
     next();

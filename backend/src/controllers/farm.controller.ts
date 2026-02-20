@@ -85,13 +85,13 @@ export const getFarmById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { farm }
     });
   } catch (error) {
     console.error('Get farm error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get farm'
     });
@@ -130,14 +130,14 @@ export const createFarm = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Farm created successfully',
       data: { farm }
     });
   } catch (error) {
     console.error('Create farm error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create farm'
     });
@@ -212,14 +212,14 @@ export const createHerd = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Herd created successfully',
       data: { herd }
     });
   } catch (error) {
     console.error('Create herd error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create herd'
     });
@@ -295,13 +295,13 @@ export const getAnimalById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { animal }
     });
   } catch (error) {
     console.error('Get animal error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get animal'
     });

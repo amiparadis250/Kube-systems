@@ -299,7 +299,7 @@ export const getParkDashboard = async (req: Request, res: Response) => {
 /**
  * Get KUBE-Land dashboard data
  */
-export const getLandDashboard = async (req: Request, res: Response) => {
+export const getLandDashboard = async (_req: Request, res: Response) => {
   try {
     const [
       totalZones,

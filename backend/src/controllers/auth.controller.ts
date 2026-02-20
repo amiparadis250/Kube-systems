@@ -95,7 +95,7 @@ export const register = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'default-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: '7d' }
     );
 
     // Parse services JSON string back to array for frontend
@@ -104,14 +104,14 @@ export const register = async (req: Request, res: Response) => {
       services: user.services ? JSON.parse(user.services) : []
     };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: { user: parsedUser, token }
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Registration failed'
     });
@@ -173,7 +173,7 @@ export const login = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'default-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: '7d' }
     );
 
     // Return user data (without password)
@@ -185,14 +185,14 @@ export const login = async (req: Request, res: Response) => {
       services: userData.services ? JSON.parse(userData.services) : []
     };
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Login successful',
       data: { user: parsedUser, token }
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Login failed'
     });
@@ -248,13 +248,13 @@ export const getProfile = async (req: Request, res: Response) => {
       services: user.services ? JSON.parse(user.services) : []
     };
 
-    res.json({
+    return res.json({
       success: true,
       data: { user: parsedUser }
     });
   } catch (error) {
     console.error('Get profile error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get profile'
     });
@@ -277,16 +277,16 @@ export const refreshToken = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: req.user.id, email: req.user.email, role: req.user.role },
       process.env.JWT_SECRET || 'default-secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: '7d' }
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: { token }
     });
   } catch (error) {
     console.error('Refresh token error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to refresh token'
     });
@@ -342,14 +342,14 @@ export const updateProfile = async (req: Request, res: Response) => {
       services: user.services ? JSON.parse(user.services) : []
     };
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Profile updated successfully',
       data: { user: parsedUser }
     });
   } catch (error) {
     console.error('Update profile error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to update profile'
     });
@@ -415,13 +415,13 @@ export const changePassword = async (req: Request, res: Response) => {
       data: { password: hashedPassword }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Password changed successfully'
     });
   } catch (error) {
     console.error('Change password error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to change password'
     });

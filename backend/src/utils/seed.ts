@@ -104,7 +104,7 @@ async function main() {
     }
   });
 
-  const analyst = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'analyst@kube.africa',
       password: hashedPassword,
@@ -380,7 +380,7 @@ async function main() {
     }
   });
 
-  const chimpanzees = await prisma.wildlifePopulation.create({
+  await prisma.wildlifePopulation.create({
     data: {
       parkId: nyungwe.id,
       species: 'Chimpanzee',
@@ -396,7 +396,7 @@ async function main() {
   });
 
   // Add more wildlife species
-  const zebras = await prisma.wildlifePopulation.create({
+  await prisma.wildlifePopulation.create({
     data: {
       parkId: akagera.id,
       species: 'Zebra',
@@ -411,7 +411,7 @@ async function main() {
     }
   });
 
-  const buffalo = await prisma.wildlifePopulation.create({
+  await prisma.wildlifePopulation.create({
     data: {
       parkId: akagera.id,
       species: 'Buffalo',
@@ -426,7 +426,7 @@ async function main() {
     }
   });
 
-  const rhinos = await prisma.wildlifePopulation.create({
+  await prisma.wildlifePopulation.create({
     data: {
       parkId: akagera.id,
       species: 'Rhinoceros',
@@ -441,7 +441,7 @@ async function main() {
     }
   });
 
-  const leopards = await prisma.wildlifePopulation.create({
+  await prisma.wildlifePopulation.create({
     data: {
       parkId: akagera.id,
       species: 'Leopard',
@@ -494,7 +494,7 @@ async function main() {
     }
   });
 
-  const patrol2 = await prisma.patrol.create({
+  await prisma.patrol.create({
     data: {
       parkId: akagera.id,
       name: 'Lake Zone Wildlife Census',

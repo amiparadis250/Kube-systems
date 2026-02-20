@@ -9,7 +9,7 @@ import prisma from '../utils/db';
 /**
  * Get all users (Admin only)
  */
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (_req: Request, res: Response) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -82,13 +82,13 @@ export const getUserById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { user }
     });
   } catch (error) {
     console.error('Get user error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get user'
     });
@@ -166,14 +166,14 @@ export const createUser = async (req: Request, res: Response) => {
       services: user.services ? JSON.parse(user.services) : []
     };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'User created successfully',
       data: { user: parsedUser }
     });
   } catch (error) {
     console.error('Create user error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create user'
     });

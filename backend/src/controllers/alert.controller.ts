@@ -81,13 +81,13 @@ export const getAlertById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: { alert }
     });
   } catch (error) {
     console.error('Get alert error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get alert'
     });
@@ -127,14 +127,14 @@ export const createAlert = async (req: Request, res: Response) => {
 
     // TODO: Trigger real-time notification via Socket.IO
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Alert created successfully',
       data: { alert }
     });
   } catch (error) {
     console.error('Create alert error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to create alert'
     });
@@ -168,14 +168,14 @@ export const updateAlertStatus = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Alert updated successfully',
       data: { alert }
     });
   } catch (error) {
     console.error('Update alert error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to update alert'
     });
@@ -210,14 +210,14 @@ export const assignAlert = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Alert assigned successfully',
       data: { alert }
     });
   } catch (error) {
     console.error('Assign alert error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to assign alert'
     });
