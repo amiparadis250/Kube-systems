@@ -1,4 +1,4 @@
-# 🛸 KUBE — Africa’s Aerial Intelligence Platform
+#  KUBE — Africa’s Aerial Intelligence Platform
 
 ![KUBE Platform](https://img.shields.io/badge/KUBE-Aerial_Intelligence-0066FF?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Production_Ready-00CC66?style=for-the-badge)
@@ -9,27 +9,27 @@
 KUBE gives Africa **"eyes in the sky + brains in the cloud"** to protect animals, prevent losses, and improve productivity.
 
 
-## 🚀 Modules
+## Modules
 
-### 🐄 KUBE-Farm
+### KUBE-Farm
 - Herd tracking and counting  
 - Disease detection  
 - Missing animal alerts  
 - Pasture monitoring  
 
-### 🦁 KUBE-Park
+### KUBE-Park
 - Wildlife census  
 - Migration tracking  
 - Thermal patrols  
 - Ranger alerts  
 
-### 🌱 KUBE-Land
+###  KUBE-Land
 - Land degradation monitoring  
 - Vegetation health analysis  
 - Climate risk insights  
 
 
-## 🏗️ Tech Stack
+##  Tech Stack
 
 **Frontend:** Next.js, Tailwind CSS, Mapbox  
 **Backend:** Node.js, Express, PostgreSQL, Prisma  
@@ -37,7 +37,7 @@ KUBE gives Africa **"eyes in the sky + brains in the cloud"** to protect animals
 
 
 
-## 🛠️ Setup
+##  Setup
 
 ### Requirements
 - Node.js ≥ 18
@@ -56,7 +56,7 @@ npm run dev
 - Backend → http://localhost:5000  
 
 
-## 📁 Structure
+##  Structure
 
 ```
 KUBE-WEB/
@@ -69,7 +69,7 @@ KUBE-WEB/
 
 
 
-## 🌟 Impact
+##  Impact
 
 - Faster detection of sick or lost animals  
 - Reduced theft and poaching  
@@ -77,7 +77,7 @@ KUBE-WEB/
 - Stronger rural economies  
 
 
-## 📄 License
+##  License
 
 Copyright © 2024–2026 KUBE Platform.
 
